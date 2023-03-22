@@ -102,10 +102,10 @@ const executeServiceWorker = (releaseHash: string, serviceWorker: string) => {
     const swUrl = sanitizedUrlGenerator(releaseHash, serviceWorker);
         
     getLogger().info(`${ LOG_PREFIX }REGISTER_START`, {
-        url: `${swUrl}`
+        url: swUrl
     });
-    if(`${swUrl}`){
-        startRegistration(`${swUrl}`);
+    if(swUrl){
+        startRegistration(swUrl);
     }
     else {
         getLogger().error(`${ LOG_PREFIX }ERROR_DURING_SWURL_GENERATION`);
@@ -113,9 +113,9 @@ const executeServiceWorker = (releaseHash: string, serviceWorker: string) => {
 }
 
 export function sanitizedUrlGenerator (releaseHash: string, serviceWorker: string) {
-    const clearedHash = releaseHash.replace(/[^0-9a-z]/gi, '', '');
+    const clearedHash = releaseHash.replace(/[^0-9a-z]/gi, '');
     const sanitizedUrl = new URL(`${SERVICE_WORKER_URL}/${serviceWorker}?releaseHash=${clearedHash}`);
-    return sanitizedUrl;
+    return `${sanitizedUrl}`;
 }
 
 export function registerServiceWorker({ dumbledoreCurrentReleaseHash, dumbledoreServiceWorker }: RegisterServiceWorkerParams) {
