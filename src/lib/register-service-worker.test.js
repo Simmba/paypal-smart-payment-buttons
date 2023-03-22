@@ -97,6 +97,6 @@ describe("Test service worker url generation", () => {
     const expectedUrl =
       "https://www.paypal.com/checkout-sw/service-worker.d13e6de5a39aafd6b06bd1d18d165c8d.js?releaseHash=b6cc430fb82802fb9363767b8a7c38187fa4a9d7";
 
-    expect(`${sanitizedUrl}`).toMatch(expectedUrl);
+    expect(sanitizedUrl).toMatch(expectedUrl);
   });
 });
