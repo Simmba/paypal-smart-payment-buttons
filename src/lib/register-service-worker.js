@@ -98,6 +98,13 @@ const startRegistration = (swUrl) => {
         });
 }
 
+export function sanitizedUrlGenerator (releaseHash: string, serviceWorker: string): string {
+    const clearedHash = releaseHash.replace(/[^0-9a-z]/gi, '');
+    // eslint-disable-next-line compat/compat
+    const sanitizedUrl = new URL(`${SERVICE_WORKER_URL}/${serviceWorker}?releaseHash=${clearedHash}`);
+    return `${sanitizedUrl}`;
+}
+
 const executeServiceWorker = (releaseHash: string, serviceWorker: string) => {
     const swUrl = sanitizedUrlGenerator(releaseHash, serviceWorker);
         
@@ -110,12 +117,6 @@ const executeServiceWorker = (releaseHash: string, serviceWorker: string) => {
     else {
         getLogger().error(`${ LOG_PREFIX }ERROR_DURING_SWURL_GENERATION`);
     }
-}
-
-export function sanitizedUrlGenerator (releaseHash: string, serviceWorker: string) {
-    const clearedHash = releaseHash.replace(/[^0-9a-z]/gi, '');
-    const sanitizedUrl = new URL(`${SERVICE_WORKER_URL}/${serviceWorker}?releaseHash=${clearedHash}`);
-    return `${sanitizedUrl}`;
 }
 
 export function registerServiceWorker({ dumbledoreCurrentReleaseHash, dumbledoreServiceWorker }: RegisterServiceWorkerParams) {
