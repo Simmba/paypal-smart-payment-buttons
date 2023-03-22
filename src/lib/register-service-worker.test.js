@@ -5,7 +5,10 @@ import { describe, beforeEach, it, expect, vi } from "vitest";
 
 import { SERVICE_WORKER } from "../constants";
 
-import { registerServiceWorker } from "./register-service-worker";
+import {
+  registerServiceWorker,
+  sanitizedUrlGenerator,
+} from "./register-service-worker";
 
 const { SERVICE_WORKER_URL } = SERVICE_WORKER;
 
@@ -78,5 +81,22 @@ describe("Test service worker registration script", () => {
         scope: "/checkoutweb",
       });
     });
+  });
+});
+
+describe("Test service worker url generation", () => {
+  it("Should check and remove non alphanumeric characters in the release hash", () => {
+    const invalidReleaseHash =
+      "/../../b6cc430fb82802fb9363767b8a7c38187fa4a9d7";
+    const dumbledoreServiceWorker =
+      "service-worker.d13e6de5a39aafd6b06bd1d18d165c8d.js";
+    const sanitizedUrl = sanitizedUrlGenerator(
+      invalidReleaseHash,
+      dumbledoreServiceWorker
+    );
+    const expectedUrl =
+      "https://www.paypal.com/checkout-sw/service-worker.d13e6de5a39aafd6b06bd1d18d165c8d.js?releaseHash=b6cc430fb82802fb9363767b8a7c38187fa4a9d7";
+
+    expect(`${sanitizedUrl}`).toMatch(expectedUrl);
   });
 });

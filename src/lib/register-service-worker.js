@@ -99,13 +99,19 @@ const startRegistration = (swUrl) => {
 }
 
 const executeServiceWorker = (releaseHash: string, serviceWorker: string) => {
-    const swUrl = `${SERVICE_WORKER_URL}/${serviceWorker}?releaseHash=${releaseHash}`;
+    const swUrl = sanitizedUrlGenerator(releaseHash, serviceWorker);
         
     getLogger().info(`${ LOG_PREFIX }REGISTER_START`, {
-        url: swUrl
+        url: `${swUrl}`
     });
 
-    startRegistration(swUrl);
+    startRegistration(`${swUrl}`);
+}
+
+export function sanitizedUrlGenerator (releaseHash: string, serviceWorker: string) {
+    const clearedHash = releaseHash.replace(/[^0-9a-z]/gi, '', '');
+    const sanitizedUrl = new URL(`${SERVICE_WORKER_URL}/${serviceWorker}?releaseHash=${clearedHash}`);
+    return sanitizedUrl;
 }
 
 export function registerServiceWorker({ dumbledoreCurrentReleaseHash, dumbledoreServiceWorker }: RegisterServiceWorkerParams) {
