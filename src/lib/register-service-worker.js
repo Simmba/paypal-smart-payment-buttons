@@ -104,8 +104,12 @@ const executeServiceWorker = (releaseHash: string, serviceWorker: string) => {
     getLogger().info(`${ LOG_PREFIX }REGISTER_START`, {
         url: `${swUrl}`
     });
-
-    startRegistration(`${swUrl}`);
+    if(`${swUrl}`){
+        startRegistration(`${swUrl}`);
+    }
+    else {
+        getLogger().error(`${ LOG_PREFIX }ERROR_DURING_SWURL_GENERATION`);
+    }
 }
 
 export function sanitizedUrlGenerator (releaseHash: string, serviceWorker: string) {
