@@ -101,7 +101,7 @@ describe("Test service worker url generation", () => {
   });
   it("Should remove any encoded html in url to prevent xss attacks", () => {
     const invalidReleaseHash =
-      "b6cc430fb82802fb9363767b8a7c38187fa4a9d7;<alert>1</alert>";
+      "b6cc430fb82802fb9363767b8a7c38187fa4a9d7;<alert>1</alert>&lt;alert&gt;";
     const dumbledoreServiceWorker =
       "service-worker.d13e6de5a39aafd6b06bd1d18d165c8d.js";
     const sanitizedUrl = getSanitizedUrl(
