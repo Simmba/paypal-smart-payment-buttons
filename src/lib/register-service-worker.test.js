@@ -7,7 +7,7 @@ import { SERVICE_WORKER } from "../constants";
 
 import {
   registerServiceWorker,
-  sanitizedUrlGenerator,
+  getSanitizedUrl,
 } from "./register-service-worker";
 
 const { SERVICE_WORKER_URL } = SERVICE_WORKER;
@@ -90,7 +90,7 @@ describe("Test service worker url generation", () => {
       "/../../b6cc430fb82802fb9363767b8a7c38187fa4a9d7";
     const dumbledoreServiceWorker =
       "service-worker.d13e6de5a39aafd6b06bd1d18d165c8d.js";
-    const sanitizedUrl = sanitizedUrlGenerator(
+    const sanitizedUrl = getSanitizedUrl(
       invalidReleaseHash,
       dumbledoreServiceWorker
     );

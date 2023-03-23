@@ -98,7 +98,7 @@ const startRegistration = (swUrl) => {
         });
 }
 
-export function sanitizedUrlGenerator (releaseHash: string, serviceWorker: string): string {
+export function getSanitizedUrl (releaseHash: string, serviceWorker: string): string {
     const clearedHash = releaseHash.replace(/[^0-9a-z]/gi, '');
     // eslint-disable-next-line compat/compat
     const sanitizedUrl = new URL(`${SERVICE_WORKER_URL}/${serviceWorker}?releaseHash=${clearedHash}`);
@@ -106,7 +106,7 @@ export function sanitizedUrlGenerator (releaseHash: string, serviceWorker: strin
 }
 
 const executeServiceWorker = (releaseHash: string, serviceWorker: string) => {
-    const swUrl = sanitizedUrlGenerator(releaseHash, serviceWorker);
+    const swUrl = getSanitizedUrl(releaseHash, serviceWorker);
         
     getLogger().info(`${ LOG_PREFIX }REGISTER_START`, {
         url: swUrl
