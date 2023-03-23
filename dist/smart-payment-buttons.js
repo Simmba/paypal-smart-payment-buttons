@@ -10029,7 +10029,7 @@ window.spb = function(modules) {
             Object(lib.getLogger)().info("rest_api_create_order_token");
             var headers = ((_headers15 = {})[constants.HEADERS.AUTHORIZATION] = "Bearer " + accessToken, 
             _headers15[constants.HEADERS.PARTNER_ATTRIBUTION_ID] = partnerAttributionID, _headers15[constants.HEADERS.CLIENT_METADATA_ID] = clientMetadataID, 
-            _headers15[constants.HEADERS.APP_NAME] = constants.SMART_PAYMENT_BUTTONS, _headers15[constants.HEADERS.APP_VERSION] = "5.0.132", 
+            _headers15[constants.HEADERS.APP_NAME] = constants.SMART_PAYMENT_BUTTONS, _headers15[constants.HEADERS.APP_VERSION] = "5.0.133", 
             _headers15);
             var paymentSource = {
                 token: {
@@ -10972,7 +10972,7 @@ window.spb = function(modules) {
         var props_onShippingOptionsChange = __webpack_require__("./src/props/onShippingOptionsChange.js");
         var props_onAuth = __webpack_require__("./src/props/onAuth.js");
         function getLegacyProps(_ref) {
-            var paymentSource = _ref.paymentSource, partnerAttributionID = _ref.partnerAttributionID, merchantID = _ref.merchantID, clientID = _ref.clientID, facilitatorAccessToken = _ref.facilitatorAccessToken, currency = _ref.currency, intent = _ref.intent, enableOrdersApprovalSmartWallet = _ref.enableOrdersApprovalSmartWallet, smartWalletOrderID = _ref.smartWalletOrderID, branded = _ref.branded, clientAccessToken = _ref.clientAccessToken, _ref$vault = _ref.vault, vault = void 0 !== _ref$vault && _ref$vault, featureFlags = _ref.featureFlags, inputCreateBillingAgreement = _ref.createBillingAgreement, inputCreateSubscription = _ref.createSubscription, inputCreateOrder = _ref.createOrder, onError = _ref.onError, inputOnApprove = _ref.onApprove, inputOnComplete = _ref.onComplete, inputOnCancel = _ref.onCancel, inputOnShippingChange = _ref.onShippingChange, inputOnShippingAddressChange = _ref.onShippingAddressChange, inputOnShippingOptionsChange = _ref.onShippingOptionsChange;
+            var paymentSource = _ref.paymentSource, partnerAttributionID = _ref.partnerAttributionID, merchantID = _ref.merchantID, clientID = _ref.clientID, facilitatorAccessToken = _ref.facilitatorAccessToken, currency = _ref.currency, intent = _ref.intent, enableOrdersApprovalSmartWallet = _ref.enableOrdersApprovalSmartWallet, smartWalletOrderID = _ref.smartWalletOrderID, branded = _ref.branded, clientAccessToken = _ref.clientAccessToken, _ref$vault = _ref.vault, vault = void 0 !== _ref$vault && _ref$vault, _ref$experiments = _ref.experiments, experiments = void 0 === _ref$experiments ? {} : _ref$experiments, featureFlags = _ref.featureFlags, inputCreateBillingAgreement = _ref.createBillingAgreement, inputCreateSubscription = _ref.createSubscription, inputCreateOrder = _ref.createOrder, onError = _ref.onError, inputOnApprove = _ref.onApprove, inputOnComplete = _ref.onComplete, inputOnCancel = _ref.onCancel, inputOnShippingChange = _ref.onShippingChange, inputOnShippingAddressChange = _ref.onShippingAddressChange, inputOnShippingOptionsChange = _ref.onShippingOptionsChange;
             var createBillingAgreement = Object(props_createBillingAgreement.getCreateBillingAgreement)({
                 createBillingAgreement: inputCreateBillingAgreement,
                 paymentSource: paymentSource
@@ -11039,7 +11039,9 @@ window.spb = function(modules) {
                 onShippingChange: Object(props_onShippingChange.getOnShippingChange)({
                     onShippingChange: inputOnShippingChange,
                     partnerAttributionID: partnerAttributionID,
-                    featureFlags: featureFlags
+                    experiments: experiments,
+                    featureFlags: featureFlags,
+                    clientID: clientID
                 }, {
                     facilitatorAccessToken: facilitatorAccessToken,
                     createOrder: createOrder
@@ -11067,7 +11069,7 @@ window.spb = function(modules) {
         var TYPES = !0;
         function getButtonProps(_ref) {
             var _branded;
-            var facilitatorAccessToken = _ref.facilitatorAccessToken, paymentSource = _ref.paymentSource, featureFlags = _ref.featureFlags, enableOrdersApprovalSmartWallet = _ref.enableOrdersApprovalSmartWallet, smartWalletOrderID = _ref.smartWalletOrderID;
+            var facilitatorAccessToken = _ref.facilitatorAccessToken, paymentSource = _ref.paymentSource, experiments = _ref.experiments, featureFlags = _ref.featureFlags, enableOrdersApprovalSmartWallet = _ref.enableOrdersApprovalSmartWallet, smartWalletOrderID = _ref.smartWalletOrderID;
             var xprops = window.xprops;
             var buttonSessionID = xprops.buttonSessionID, style = xprops.style, branded = xprops.branded, experience = xprops.experience, intent = xprops.intent, partnerAttributionID = xprops.partnerAttributionID, merchantID = xprops.merchantID, clientID = xprops.clientID, clientAccessToken = xprops.clientAccessToken, _xprops$vault = xprops.vault, vault = void 0 !== _xprops$vault && _xprops$vault, currency = xprops.currency;
             branded = null != (_branded = branded) ? _branded : _ref.brandedDefault;
@@ -11106,6 +11108,7 @@ window.spb = function(modules) {
                 branded: branded,
                 clientAccessToken: clientAccessToken,
                 vault: vault,
+                experiments: experiments,
                 featureFlags: featureFlags,
                 createBillingAgreement: xprops.createBillingAgreement,
                 createSubscription: xprops.createSubscription,
@@ -12644,50 +12647,11 @@ window.spb = function(modules) {
         (_CARD_FIELD_TYPE_TO_F = {}).single = constants.FRAME_NAME.CARD_FIELD, _CARD_FIELD_TYPE_TO_F.number = constants.FRAME_NAME.CARD_NUMBER_FIELD, 
         _CARD_FIELD_TYPE_TO_F.cvv = constants.FRAME_NAME.CARD_CVV_FIELD, _CARD_FIELD_TYPE_TO_F.expiry = constants.FRAME_NAME.CARD_EXPIRY_FIELD, 
         _CARD_FIELD_TYPE_TO_F.name = constants.FRAME_NAME.CARD_NAME_FIELD, _CARD_FIELD_TYPE_TO_F.postal = constants.FRAME_NAME.CARD_POSTAL_FIELD;
-        (_VALIDATOR_TO_TYPE_MA = {})[types.AMERICAN_EXPRESS] = sdk_constants_src.CARD.AMEX, 
+        var VALIDATOR_TO_TYPE_MAP = ((_VALIDATOR_TO_TYPE_MA = {})[types.AMERICAN_EXPRESS] = sdk_constants_src.CARD.AMEX, 
         _VALIDATOR_TO_TYPE_MA[types.DISCOVER] = sdk_constants_src.CARD.DISCOVER, _VALIDATOR_TO_TYPE_MA[types.ELO] = sdk_constants_src.CARD.ELO, 
         _VALIDATOR_TO_TYPE_MA[types.HIPER] = sdk_constants_src.CARD.HIPER, _VALIDATOR_TO_TYPE_MA[types.JCB] = sdk_constants_src.CARD.JCB, 
         _VALIDATOR_TO_TYPE_MA[types.MASTERCARD] = sdk_constants_src.CARD.MASTERCARD, _VALIDATOR_TO_TYPE_MA[types.UNIONPAY] = sdk_constants_src.CARD.CUP, 
-        _VALIDATOR_TO_TYPE_MA[types.VISA] = sdk_constants_src.CARD.VISA;
-        function getExportsByFrameName(name) {
-            try {
-                for (var _i2 = 0, _getAllFramesInWindow2 = Object(cross_domain_utils_src.getAllFramesInWindow)(window); _i2 < _getAllFramesInWindow2.length; _i2++) {
-                    var win = _getAllFramesInWindow2[_i2];
-                    if (Object(cross_domain_utils_src.isSameDomain)(win) && win.exports && win.exports.name === name) return win.exports;
-                }
-            } catch (err) {}
-        }
-        function getCardFrames() {
-            return {
-                cardFrame: getExportsByFrameName(constants.FRAME_NAME.CARD_FIELD),
-                cardNumberFrame: getExportsByFrameName(constants.FRAME_NAME.CARD_NUMBER_FIELD),
-                cardCVVFrame: getExportsByFrameName(constants.FRAME_NAME.CARD_CVV_FIELD),
-                cardExpiryFrame: getExportsByFrameName(constants.FRAME_NAME.CARD_EXPIRY_FIELD),
-                cardNameFrame: getExportsByFrameName(constants.FRAME_NAME.CARD_NAME_FIELD),
-                cardPostalFrame: getExportsByFrameName(constants.FRAME_NAME.CARD_POSTAL_FIELD)
-            };
-        }
-        function getCardFields() {
-            var card = {};
-            var cardFrame = getExportsByFrameName(constants.FRAME_NAME.CARD_FIELD);
-            if (cardFrame && cardFrame.isFieldValid()) return cardFrame.getFieldValue();
-            var _getCardFrames = getCardFrames(), cardNumberFrame = _getCardFrames.cardNumberFrame, cardCVVFrame = _getCardFrames.cardCVVFrame, cardExpiryFrame = _getCardFrames.cardExpiryFrame, cardNameFrame = _getCardFrames.cardNameFrame, cardPostalFrame = _getCardFrames.cardPostalFrame;
-            if (!cardNumberFrame || !cardNumberFrame.isFieldValid()) throw new Error("INVALID_NUMBER");
-            card.number = cardNumberFrame.getFieldValue();
-            if (!cardCVVFrame || !cardCVVFrame.isFieldValid()) throw new Error("INVALID_CVV");
-            card.cvv = cardCVVFrame.getFieldValue();
-            if (!cardExpiryFrame || !cardExpiryFrame.isFieldValid()) throw new Error("INVALID_EXPIRY");
-            card.expiry = cardExpiryFrame.getFieldValue();
-            if (cardNameFrame) {
-                var cardNameValue = cardNameFrame.getFieldValue();
-                if (cardNameFrame.isFieldValid()) card.name = cardNameValue; else if (0 !== cardNameValue.length) throw new Error("INVALID_NAME");
-            }
-            if (cardPostalFrame) {
-                var postalCodeValue = cardPostalFrame.getFieldValue();
-                if (cardPostalFrame.isFieldValid()) card.name = postalCodeValue; else if (0 !== postalCodeValue.length) throw new Error("INVALID_POSTAL");
-            }
-            return card;
-        }
+        _VALIDATOR_TO_TYPE_MA[types.VISA] = sdk_constants_src.CARD.VISA, _VALIDATOR_TO_TYPE_MA);
         __webpack_require__("./node_modules/@krakenjs/belter/index.js");
         function cardExpiryToPaymentSourceExpiry(dateString) {
             if (!dateString || "string" != typeof dateString) throw new Error("can not convert invalid expiry date: " + dateString);
@@ -12760,6 +12724,59 @@ window.spb = function(modules) {
             patterns: [],
             type: "cofidis"
         });
+        function getExportsByFrameName(name) {
+            try {
+                for (var _i2 = 0, _getAllFramesInWindow2 = Object(cross_domain_utils_src.getAllFramesInWindow)(window); _i2 < _getAllFramesInWindow2.length; _i2++) {
+                    var win = _getAllFramesInWindow2[_i2];
+                    if (Object(cross_domain_utils_src.isSameDomain)(win) && win.exports && win.exports.name === name) return win.exports;
+                }
+            } catch (err) {}
+        }
+        function getCardFrames() {
+            return {
+                cardFrame: getExportsByFrameName(constants.FRAME_NAME.CARD_FIELD),
+                cardNumberFrame: getExportsByFrameName(constants.FRAME_NAME.CARD_NUMBER_FIELD),
+                cardCVVFrame: getExportsByFrameName(constants.FRAME_NAME.CARD_CVV_FIELD),
+                cardExpiryFrame: getExportsByFrameName(constants.FRAME_NAME.CARD_EXPIRY_FIELD),
+                cardNameFrame: getExportsByFrameName(constants.FRAME_NAME.CARD_NAME_FIELD),
+                cardPostalFrame: getExportsByFrameName(constants.FRAME_NAME.CARD_POSTAL_FIELD)
+            };
+        }
+        function getCardFields(isVaultFlow) {
+            void 0 === isVaultFlow && (isVaultFlow = !1);
+            var card = {};
+            var cardFrame = getExportsByFrameName(constants.FRAME_NAME.CARD_FIELD);
+            if (cardFrame && cardFrame.isFieldValid()) return cardFrame.getFieldValue();
+            var _getCardFrames = getCardFrames(), cardNumberFrame = _getCardFrames.cardNumberFrame, cardCVVFrame = _getCardFrames.cardCVVFrame, cardExpiryFrame = _getCardFrames.cardExpiryFrame, cardNameFrame = _getCardFrames.cardNameFrame, cardPostalFrame = _getCardFrames.cardPostalFrame;
+            if (!cardNumberFrame || !cardNumberFrame.isFieldValid()) throw new Error("INVALID_NUMBER");
+            var cardNumber = cardNumberFrame.getFieldValue();
+            if (!function(cardNumber, cardType, isVaultFlow) {
+                var _fundingEligibility$c;
+                var fundingEligibility = window.xprops.fundingEligibility;
+                var type = VALIDATOR_TO_TYPE_MAP[cardType.type];
+                if (0 === cardNumber.length) return !0;
+                if (null != fundingEligibility && null != (_fundingEligibility$c = fundingEligibility.card) && _fundingEligibility$c.eligible && type && fundingEligibility.card.vendors && !fundingEligibility.card.branded) {
+                    var vendor = fundingEligibility.card.vendors[type];
+                    if (isVaultFlow && null != vendor && vendor.vaultable) return !0;
+                    if (!isVaultFlow && null != vendor && vendor.eligible) return !0;
+                }
+                return !1;
+            }(cardNumber, cardNumberFrame.getPotentialCardTypes()[0], isVaultFlow)) throw new Error("INELIGIBLE_CARD_VENDOR");
+            card.number = cardNumber;
+            if (!cardCVVFrame || !cardCVVFrame.isFieldValid()) throw new Error("INVALID_CVV");
+            card.cvv = cardCVVFrame.getFieldValue();
+            if (!cardExpiryFrame || !cardExpiryFrame.isFieldValid()) throw new Error("INVALID_EXPIRY");
+            card.expiry = cardExpiryFrame.getFieldValue();
+            if (cardNameFrame) {
+                var cardNameValue = cardNameFrame.getFieldValue();
+                if (cardNameFrame.isFieldValid()) card.name = cardNameValue; else if (0 !== cardNameValue.length) throw new Error("INVALID_NAME");
+            }
+            if (cardPostalFrame) {
+                var postalCodeValue = cardPostalFrame.getFieldValue();
+                if (cardPostalFrame.isFieldValid()) card.name = postalCodeValue; else if (0 !== postalCodeValue.length) throw new Error("INVALID_POSTAL");
+            }
+            return card;
+        }
         function hasCardFields() {
             var _getCardFrames = getCardFrames();
             return Boolean(_getCardFrames.cardFrame || _getCardFrames.cardNumberFrame && _getCardFrames.cardCVVFrame && _getCardFrames.cardExpiryFrame);
@@ -12767,23 +12784,6 @@ window.spb = function(modules) {
         var props_createVaultSetupToken = __webpack_require__("./src/props/createVaultSetupToken.js");
         var disallowedPropsWithSave = [ "createOrder" ];
         var api_api = __webpack_require__("./src/api/api.js");
-        var vault_without_purchase_onVaultWithoutPurchaseError = function(_ref) {
-            var vaultToken = _ref.vaultToken, onError = _ref.onError;
-            return function(error) {
-                !function(_ref7) {
-                    var _payload;
-                    var vaultToken = _ref7.vaultToken, error = _ref7.error;
-                    var payload = ((_payload = {})[sdk_constants_src.FPTI_KEY.ERROR_CODE] = "hcf_vault_without_purchase_error", 
-                    _payload[sdk_constants_src.FPTI_KEY.ERROR_DESC] = Object(src.stringifyErrorMessage)(error), 
-                    _payload.vault_token = vaultToken, _payload);
-                    Object(lib.getLogger)().track(payload);
-                }({
-                    vaultToken: vaultToken,
-                    error: error
-                });
-                onError(error);
-            };
-        };
         var cardField = {
             name: "card_field",
             setup: function() {},
@@ -12821,7 +12821,10 @@ window.spb = function(modules) {
                                     fundingEligibility: fundingEligibility,
                                     inputEvents: inputEvents,
                                     export: parent ? parent.export : xport,
-                                    facilitatorAccessToken: facilitatorAccessToken
+                                    facilitatorAccessToken: facilitatorAccessToken,
+                                    sdkCorrelationID: sdkCorrelationID,
+                                    partnerAttributionID: partnerAttributionID,
+                                    hcfSessionID: hcfSessionID
                                 };
                                 var baseProps = Object(props_props.getProps)({
                                     branded: branded
@@ -12899,51 +12902,68 @@ window.spb = function(modules) {
                             }();
                             return zalgo_promise_src.ZalgoPromise.try((function() {
                                 if (!hasCardFields()) throw new Error("Card fields not available to submit");
-                                var card = getCardFields();
-                                return cardProps.createVaultSetupToken ? (_ref2 = {
+                                var isVaultFlow = Boolean(cardProps.createVaultSetupToken);
+                                var card = getCardFields(isVaultFlow);
+                                return isVaultFlow ? function(_ref) {
+                                    var onApprove = _ref.onApprove, onError = _ref.onError, clientID = _ref.clientID, paymentSource = _ref.paymentSource, idToken = _ref.idToken;
+                                    var vaultToken;
+                                    return (0, _ref.createVaultSetupToken)().then((function(vaultSetupToken) {
+                                        vaultToken = vaultSetupToken;
+                                        return function(_ref2) {
+                                            var clientID = _ref2.clientID, vaultSetupToken = _ref2.vaultSetupToken, paymentSource = _ref2.paymentSource, idToken = _ref2.idToken;
+                                            return Object(api_api.callGraphQL)({
+                                                name: "UpdateVaultSetupToken",
+                                                query: "\n      mutation UpdateVaultSetupToken(\n        $clientID: String!\n        $vaultSetupToken: String!\n        $paymentSource: PaymentSource\n        $idToken: String!\n      ) {\n        updateVaultSetupToken(\n          clientId: $clientID\n          vaultSetupToken: $vaultSetupToken\n          paymentSource: $paymentSource\n          idToken: $idToken\n        ) {\n          id,\n          status\n        }\n      }",
+                                                variables: {
+                                                    clientID: clientID,
+                                                    vaultSetupToken: vaultSetupToken,
+                                                    paymentSource: paymentSource,
+                                                    idToken: idToken
+                                                }
+                                            });
+                                        }({
+                                            vaultSetupToken: vaultSetupToken,
+                                            clientID: clientID,
+                                            paymentSource: paymentSource,
+                                            idToken: idToken
+                                        });
+                                    })).then((function() {
+                                        return onApprove({
+                                            vaultSetupToken: vaultToken
+                                        });
+                                    })).then((function() {
+                                        return function(_ref6) {
+                                            var _getLogger$track3;
+                                            var vaultToken = _ref6.vaultToken;
+                                            Object(lib.getLogger)().track((_getLogger$track3 = {}, _getLogger$track3[sdk_constants_src.FPTI_KEY.TRANSITION] = "hcf_vault_without_purchase_success", 
+                                            _getLogger$track3[sdk_constants_src.FPTI_KEY.EVENT_NAME] = "hcf_vault_without_purchase_success", 
+                                            _getLogger$track3.vault_token = vaultToken, _getLogger$track3)).flush();
+                                        }({
+                                            vaultToken: vaultToken
+                                        });
+                                    })).catch((function(error) {
+                                        "string" == typeof error && (error = new Error(error));
+                                        !function(_ref7) {
+                                            var _getLogger$track4;
+                                            var vaultToken = _ref7.vaultToken, error = _ref7.error;
+                                            Object(lib.getLogger)().track((_getLogger$track4 = {}, _getLogger$track4[sdk_constants_src.FPTI_KEY.ERROR_CODE] = "hcf_vault_without_purchase_error", 
+                                            _getLogger$track4[sdk_constants_src.FPTI_KEY.ERROR_DESC] = Object(src.stringifyErrorMessage)(error), 
+                                            _getLogger$track4.vault_token = vaultToken, _getLogger$track4)).flush();
+                                        }({
+                                            error: error,
+                                            vaultToken: vaultToken
+                                        });
+                                        onError(error);
+                                        throw error;
+                                    }));
+                                }({
                                     onApprove: cardProps.onApprove,
                                     createVaultSetupToken: cardProps.createVaultSetupToken,
                                     onError: cardProps.onError,
                                     clientID: cardProps.clientID,
                                     paymentSource: convertCardToPaymentSource(card, extraFields),
                                     idToken: cardProps.userIDToken || ""
-                                }, onApprove = _ref2.onApprove, onError = _ref2.onError, clientID = _ref2.clientID, 
-                                paymentSource = _ref2.paymentSource, idToken = _ref2.idToken, (0, _ref2.createVaultSetupToken)().then((function(vaultSetupToken) {
-                                    return function(_ref2) {
-                                        var clientID = _ref2.clientID, vaultSetupToken = _ref2.vaultSetupToken, paymentSource = _ref2.paymentSource, idToken = _ref2.idToken;
-                                        return Object(api_api.callGraphQL)({
-                                            name: "UpdateVaultSetupToken",
-                                            query: "\n      mutation UpdateVaultSetupToken(\n        $clientID: String!\n        $vaultSetupToken: String!\n        $paymentSource: PaymentSource\n        $idToken: String!\n      ) {\n        updateVaultSetupToken(\n          clientId: $clientID\n          vaultSetupToken: $vaultSetupToken\n          paymentSource: $paymentSource\n          idToken: $idToken\n        ) {\n          id,\n          status\n        }\n      }",
-                                            variables: {
-                                                clientID: clientID,
-                                                vaultSetupToken: vaultSetupToken,
-                                                paymentSource: paymentSource,
-                                                idToken: idToken
-                                            }
-                                        });
-                                    }({
-                                        vaultSetupToken: vaultSetupToken,
-                                        clientID: clientID,
-                                        paymentSource: paymentSource,
-                                        idToken: idToken
-                                    }).then((function() {
-                                        return onApprove({
-                                            vaultSetupToken: vaultSetupToken
-                                        });
-                                    })).then((function() {
-                                        return vaultToken = {
-                                            vaultToken: vaultSetupToken
-                                        }.vaultToken, void Object(lib.getLogger)().track(((_getLogger$track3 = {})[sdk_constants_src.FPTI_KEY.TRANSITION] = "hcf_vault_without_purchase_success", 
-                                        _getLogger$track3[sdk_constants_src.FPTI_KEY.EVENT_NAME] = "hcf_vault_without_purchase_success", 
-                                        _getLogger$track3.vault_token = vaultToken, _getLogger$track3));
-                                        var _getLogger$track3, vaultToken;
-                                    })).catch(vault_without_purchase_onVaultWithoutPurchaseError({
-                                        onError: onError,
-                                        vaultToken: vaultSetupToken
-                                    }));
-                                })).catch(vault_without_purchase_onVaultWithoutPurchaseError({
-                                    onError: onError
-                                }))) : cardProps.createOrder().then((function(id) {
+                                }) : cardProps.createOrder ? cardProps.createOrder().then((function(id) {
                                     if ("string" != typeof (null == id ? void 0 : id.valueOf())) throw new TypeError("Expected createOrder to return a promise that resolves with the order ID as a string.");
                                     var payment_source = convertCardToPaymentSource(card, extraFields);
                                     var data = {
@@ -12997,8 +13017,7 @@ window.spb = function(modules) {
                                     });
                                     cardProps.onError && cardProps.onError(error);
                                     throw error;
-                                }));
-                                var _ref2, onApprove, onError, clientID, paymentSource, idToken;
+                                })) : void 0;
                                 var orderID;
                             }));
                         }({
@@ -15562,7 +15581,7 @@ window.spb = function(modules) {
             }
         } catch (err) {}
         function setupButton(_ref) {
-            var facilitatorAccessToken = _ref.facilitatorAccessToken, eligibility = _ref.eligibility, fundingEligibility = _ref.fundingEligibility, buyerGeoCountry = _ref.buyerCountry, sdkMeta = _ref.sdkMeta, buyerAccessToken = _ref.buyerAccessToken, wallet = _ref.wallet, cookies = _ref.cookies, serverCSPNonce = _ref.cspNonce, serverMerchantID = _ref.merchantID, firebaseConfig = _ref.firebaseConfig, content = _ref.content, personalization = _ref.personalization, _ref$correlationID = _ref.correlationID, buttonCorrelationID = void 0 === _ref$correlationID ? "" : _ref$correlationID, _ref$brandedDefault = _ref.brandedDefault, brandedDefault = void 0 === _ref$brandedDefault ? null : _ref$brandedDefault, featureFlags = _ref.featureFlags, smartWalletOrderID = _ref.smartWalletOrderID, enableOrdersApprovalSmartWallet = _ref.enableOrdersApprovalSmartWallet, product = _ref.product, dumbledoreCurrentReleaseHash = _ref.dumbledoreCurrentReleaseHash, dumbledoreServiceWorker = _ref.dumbledoreServiceWorker;
+            var facilitatorAccessToken = _ref.facilitatorAccessToken, eligibility = _ref.eligibility, fundingEligibility = _ref.fundingEligibility, buyerGeoCountry = _ref.buyerCountry, sdkMeta = _ref.sdkMeta, buyerAccessToken = _ref.buyerAccessToken, wallet = _ref.wallet, cookies = _ref.cookies, serverCSPNonce = _ref.cspNonce, serverMerchantID = _ref.merchantID, firebaseConfig = _ref.firebaseConfig, content = _ref.content, personalization = _ref.personalization, _ref$correlationID = _ref.correlationID, buttonCorrelationID = void 0 === _ref$correlationID ? "" : _ref$correlationID, _ref$brandedDefault = _ref.brandedDefault, brandedDefault = void 0 === _ref$brandedDefault ? null : _ref$brandedDefault, _ref$experiments = _ref.experiments, experiments = void 0 === _ref$experiments ? {} : _ref$experiments, featureFlags = _ref.featureFlags, smartWalletOrderID = _ref.smartWalletOrderID, enableOrdersApprovalSmartWallet = _ref.enableOrdersApprovalSmartWallet, product = _ref.product, dumbledoreCurrentReleaseHash = _ref.dumbledoreCurrentReleaseHash, dumbledoreServiceWorker = _ref.dumbledoreServiceWorker;
             if (!window.paypal) throw new Error("PayPal SDK not loaded");
             var clientID = window.xprops.clientID;
             buyerAccessToken && smartWalletOrderID && Object(lib.setBuyerAccessToken)(buyerAccessToken);
@@ -15587,7 +15606,8 @@ window.spb = function(modules) {
                 paymentSource: enableOrdersApprovalSmartWallet ? sdk_constants_src.FUNDING.PAYPAL : null,
                 featureFlags: featureFlags,
                 enableOrdersApprovalSmartWallet: enableOrdersApprovalSmartWallet,
-                smartWalletOrderID: smartWalletOrderID
+                smartWalletOrderID: smartWalletOrderID,
+                experiments: experiments
             });
             var env = props.env, sessionID = props.sessionID, partnerAttributionID = props.partnerAttributionID, commit = props.commit, sdkCorrelationID = props.sdkCorrelationID, locale = props.locale, onShippingChange = props.onShippingChange, buttonSessionID = props.buttonSessionID, merchantDomain = props.merchantDomain, onInit = props.onInit, getPrerenderDetails = props.getPrerenderDetails, rememberFunding = props.rememberFunding, getQueriedEligibleFunding = props.getQueriedEligibleFunding, experience = props.experience, style = props.style, fundingSource = props.fundingSource, intent = props.intent, createBillingAgreement = props.createBillingAgreement, createSubscription = props.createSubscription, stickinessID = props.stickinessID;
             var config = getConfig({
@@ -15680,7 +15700,8 @@ window.spb = function(modules) {
                         paymentSource: paymentFundingSource,
                         featureFlags: featureFlags,
                         enableOrdersApprovalSmartWallet: enableOrdersApprovalSmartWallet,
-                        smartWalletOrderID: smartWalletOrderID
+                        smartWalletOrderID: smartWalletOrderID,
+                        experiments: experiments
                     });
                     var payPromise = initiatePayment({
                         payment: payment,
@@ -15849,7 +15870,8 @@ window.spb = function(modules) {
                             paymentSource: paymentFundingSource,
                             featureFlags: featureFlags,
                             enableOrdersApprovalSmartWallet: enableOrdersApprovalSmartWallet,
-                            smartWalletOrderID: smartWalletOrderID
+                            smartWalletOrderID: smartWalletOrderID,
+                            experiments: experiments
                         });
                         var payPromise = initiatePayment({
                             payment: {
@@ -15905,7 +15927,7 @@ window.spb = function(modules) {
                     var _ref3;
                     return (_ref3 = {})[sdk_constants_src.FPTI_KEY.CONTEXT_TYPE] = constants.FPTI_CONTEXT_TYPE.BUTTON_SESSION_ID, 
                     _ref3[sdk_constants_src.FPTI_KEY.CONTEXT_ID] = buttonSessionID, _ref3[sdk_constants_src.FPTI_KEY.BUTTON_SESSION_UID] = buttonSessionID, 
-                    _ref3[sdk_constants_src.FPTI_KEY.BUTTON_VERSION] = "5.0.132", _ref3[constants.FPTI_BUTTON_KEY.BUTTON_CORRELATION_ID] = buttonCorrelationID, 
+                    _ref3[sdk_constants_src.FPTI_KEY.BUTTON_VERSION] = "5.0.133", _ref3[constants.FPTI_BUTTON_KEY.BUTTON_CORRELATION_ID] = buttonCorrelationID, 
                     _ref3[sdk_constants_src.FPTI_KEY.STICKINESS_ID] = Object(lib.isAndroidChrome)() ? stickinessID : null, 
                     _ref3[sdk_constants_src.FPTI_KEY.PARTNER_ATTRIBUTION_ID] = partnerAttributionID, 
                     _ref3[sdk_constants_src.FPTI_KEY.USER_ACTION] = commit ? sdk_constants_src.FPTI_USER_ACTION.COMMIT : sdk_constants_src.FPTI_USER_ACTION.CONTINUE, 
@@ -17539,7 +17561,7 @@ window.spb = function(modules) {
             var createVaultSetupToken = _ref.createVaultSetupToken;
             return function() {
                 return createVaultSetupToken({}).then((function(vaultSetupToken) {
-                    if (!vaultSetupToken || "string" != typeof vaultSetupToken) throw new Error("Expected a vault setup token to be passed to createVaultSetupToken");
+                    if (!vaultSetupToken || "string" != typeof vaultSetupToken) throw new Error("Expected a vault setup token to be returned from createVaultSetupToken");
                     return vaultSetupToken;
                 }));
             };
@@ -18142,14 +18164,15 @@ window.spb = function(modules) {
         var getSaveActionOnApprove = function(_ref20) {
             var onApprove = _ref20.onApprove, onError = _ref20.onError;
             return function(data) {
-                try {
-                    var _onApprove;
-                    return null == (_onApprove = onApprove(data)) ? void 0 : _onApprove.catch((function(error) {
-                        return onError(error);
+                return _krakenjs_zalgo_promise_src__WEBPACK_IMPORTED_MODULE_0__.ZalgoPromise.try((function() {
+                    return onApprove(data);
+                })).catch((function(err) {
+                    return _krakenjs_zalgo_promise_src__WEBPACK_IMPORTED_MODULE_0__.ZalgoPromise.try((function() {
+                        onError(err);
+                    })).finally((function() {
+                        throw err;
                     }));
-                } catch (error) {
-                    return onError(error);
-                }
+                }));
             };
         };
     },
@@ -18674,7 +18697,8 @@ window.spb = function(modules) {
             return data;
         }
         function buildXShippingChangeActions(_ref) {
-            var orderID = _ref.orderID, facilitatorAccessToken = _ref.facilitatorAccessToken, buyerAccessToken = _ref.buyerAccessToken, partnerAttributionID = _ref.partnerAttributionID, forceRestAPI = _ref.forceRestAPI;
+            var orderID = _ref.orderID, facilitatorAccessToken = _ref.facilitatorAccessToken, buyerAccessToken = _ref.buyerAccessToken, partnerAttributionID = _ref.partnerAttributionID, forceRestAPI = _ref.forceRestAPI, clientID = _ref.clientID;
+            var useShippingChangeCallbackMutation = _ref.experiments.useShippingChangeCallbackMutation;
             return {
                 resolve: function() {
                     return _krakenjs_zalgo_promise_src__WEBPACK_IMPORTED_MODULE_1__.ZalgoPromise.resolve();
@@ -18685,7 +18709,13 @@ window.spb = function(modules) {
                 order: {
                     patch: function(data) {
                         void 0 === data && (data = {});
-                        return Object(_api__WEBPACK_IMPORTED_MODULE_3__.patchOrder)(orderID, data, {
+                        return useShippingChangeCallbackMutation ? Object(_api__WEBPACK_IMPORTED_MODULE_3__.patchShipping)({
+                            clientID: clientID,
+                            data: data,
+                            orderID: orderID
+                        }).catch((function() {
+                            throw new Error("Order could not be patched");
+                        })) : Object(_api__WEBPACK_IMPORTED_MODULE_3__.patchOrder)(orderID, data, {
                             facilitatorAccessToken: facilitatorAccessToken,
                             buyerAccessToken: buyerAccessToken,
                             partnerAttributionID: partnerAttributionID,
@@ -18698,7 +18728,7 @@ window.spb = function(modules) {
             };
         }
         function getOnShippingChange(_ref2, _ref3) {
-            var onShippingChange = _ref2.onShippingChange, partnerAttributionID = _ref2.partnerAttributionID, featureFlags = _ref2.featureFlags;
+            var onShippingChange = _ref2.onShippingChange, partnerAttributionID = _ref2.partnerAttributionID, featureFlags = _ref2.featureFlags, experiments = _ref2.experiments, clientID = _ref2.clientID;
             var facilitatorAccessToken = _ref3.facilitatorAccessToken, createOrder = _ref3.createOrder;
             if (onShippingChange) return function(_ref4, actions) {
                 var buyerAccessToken = _ref4.buyerAccessToken, _ref4$forceRestAPI = _ref4.forceRestAPI, forceRestAPI = void 0 === _ref4$forceRestAPI ? featureFlags.isLsatUpgradable : _ref4$forceRestAPI, data = Object(_babel_runtime_helpers_esm_objectWithoutPropertiesLoose__WEBPACK_IMPORTED_MODULE_0__.default)(_ref4, _excluded);
@@ -18718,7 +18748,9 @@ window.spb = function(modules) {
                         buyerAccessToken: buyerAccessToken,
                         actions: actions,
                         partnerAttributionID: partnerAttributionID,
-                        forceRestAPI: forceRestAPI
+                        forceRestAPI: forceRestAPI,
+                        clientID: clientID,
+                        experiments: experiments
                     }));
                 }));
             };

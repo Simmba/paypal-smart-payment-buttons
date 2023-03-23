@@ -16,17 +16,6 @@ import type {
   SaveActionOnApprove,
 } from "../../props";
 
-const onVaultWithoutPurchaseError =
-  ({ vaultToken, onError }: {| vaultToken?: string, onError: XOnError |}) =>
-  (error: mixed) => {
-    vaultWithoutPurchaseFailure({
-      vaultToken,
-      error,
-    });
-
-    onError(error);
-  };
-
 type VaultPaymenSourceOptions = {|
   createVaultSetupToken: XCreateVaultSetupToken,
   onApprove: SaveActionOnApprove,
@@ -44,9 +33,11 @@ export const savePaymentSource = ({
   paymentSource,
   idToken,
 }: VaultPaymenSourceOptions): ZalgoPromise<void> => {
+  let vaultToken;
   return createVaultSetupToken()
-    .then((vaultSetupToken) =>
-      updateVaultSetupToken({
+    .then((vaultSetupToken) => {
+      vaultToken = vaultSetupToken;
+      return updateVaultSetupToken({
         vaultSetupToken,
         clientID,
         paymentSource,
@@ -54,13 +45,15 @@ export const savePaymentSource = ({
         // to treak idToken as an optional field.
         idToken,
       })
-        .then(() => onApprove({ vaultSetupToken }))
-        .then(() =>
-          vaultWithoutPurchaseSuccess({ vaultToken: vaultSetupToken })
-        )
-        .catch(
-          onVaultWithoutPurchaseError({ onError, vaultToken: vaultSetupToken })
-        )
-    )
-    .catch(onVaultWithoutPurchaseError({ onError }));
+    })
+    .then(() => onApprove({ vaultSetupToken: vaultToken }))
+    .then(() => vaultWithoutPurchaseSuccess({ vaultToken }))
+    .catch((error) => {
+      if (typeof error === "string") {
+        error = new Error(error);
+      }
+      vaultWithoutPurchaseFailure({ error, vaultToken });
+      onError(error);
+      throw error;
+    });
 };

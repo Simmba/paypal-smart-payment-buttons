@@ -23,7 +23,7 @@ export const getCreateVaultSetupToken =
     ).then((vaultSetupToken) => {
       if (!vaultSetupToken || typeof vaultSetupToken !== "string") {
         throw new Error(
-          `Expected a vault setup token to be passed to createVaultSetupToken`
+          `Expected a vault setup token to be returned from createVaultSetupToken`
         );
       }
 

@@ -6621,7 +6621,7 @@ window.smartCard = function(modules) {
         niceType: "Unknown",
         code: {
             name: "CVV",
-            size: 4
+            size: 3
         }
     };
     var DEFAULT_STYLE = {
@@ -6987,6 +6987,18 @@ window.smartCard = function(modules) {
         }
         return cardNumber;
     }
+    function checkCardEligibility(cardNumber, cardType, isVaultFlow) {
+        var _fundingEligibility$c;
+        var fundingEligibility = window.xprops.fundingEligibility;
+        var type = VALIDATOR_TO_TYPE_MAP[cardType.type];
+        if (0 === cardNumber.length) return !0;
+        if (null != fundingEligibility && null != (_fundingEligibility$c = fundingEligibility.card) && _fundingEligibility$c.eligible && type && fundingEligibility.card.vendors && !fundingEligibility.card.branded) {
+            var vendor = fundingEligibility.card.vendors[type];
+            if (isVaultFlow && null != vendor && vendor.vaultable) return !0;
+            if (!isVaultFlow && null != vendor && vendor.eligible) return !0;
+        }
+        return !1;
+    }
     var defaultNavigation = {
         next: function() {
             return belter.noop;
@@ -7104,13 +7116,16 @@ window.smartCard = function(modules) {
             cardPostalFrame: getExportsByFrameName("card-postal-field")
         };
     }
-    function getCardFields() {
+    function getCardFields(isVaultFlow) {
+        void 0 === isVaultFlow && (isVaultFlow = !1);
         var card = {};
         var cardFrame = getExportsByFrameName("card-field");
         if (cardFrame && cardFrame.isFieldValid()) return cardFrame.getFieldValue();
         var _getCardFrames = getCardFrames(), cardNumberFrame = _getCardFrames.cardNumberFrame, cardCVVFrame = _getCardFrames.cardCVVFrame, cardExpiryFrame = _getCardFrames.cardExpiryFrame, cardNameFrame = _getCardFrames.cardNameFrame, cardPostalFrame = _getCardFrames.cardPostalFrame;
         if (!cardNumberFrame || !cardNumberFrame.isFieldValid()) throw new Error("INVALID_NUMBER");
-        card.number = cardNumberFrame.getFieldValue();
+        var cardNumber = cardNumberFrame.getFieldValue();
+        if (!checkCardEligibility(cardNumber, cardNumberFrame.getPotentialCardTypes()[0], isVaultFlow)) throw new Error("INELIGIBLE_CARD_VENDOR");
+        card.number = cardNumber;
         if (!cardCVVFrame || !cardCVVFrame.isFieldValid()) throw new Error("INVALID_CVV");
         card.cvv = cardCVVFrame.getFieldValue();
         if (!cardExpiryFrame || !cardExpiryFrame.isFieldValid()) throw new Error("INVALID_EXPIRY");
@@ -7956,7 +7971,7 @@ window.smartCard = function(modules) {
     var onShippingAddressChange_excluded = [ "amount", "buyerAccessToken", "event", "forceRestAPI", "shipping_address" ];
     var onShippingOptionsChange_excluded = [ "amount", "buyerAccessToken", "event", "forceRestAPI", "options", "selected_shipping_option" ];
     function getLegacyProps(_ref) {
-        var paymentSource = _ref.paymentSource, partnerAttributionID = _ref.partnerAttributionID, merchantID = _ref.merchantID, clientID = _ref.clientID, facilitatorAccessToken = _ref.facilitatorAccessToken, currency = _ref.currency, intent = _ref.intent, enableOrdersApprovalSmartWallet = _ref.enableOrdersApprovalSmartWallet, smartWalletOrderID = _ref.smartWalletOrderID, branded = _ref.branded, clientAccessToken = _ref.clientAccessToken, _ref$vault = _ref.vault, vault = void 0 !== _ref$vault && _ref$vault, featureFlags = _ref.featureFlags, inputCreateSubscription = _ref.createSubscription, inputCreateOrder = _ref.createOrder, onError = _ref.onError, inputOnApprove = _ref.onApprove, inputOnComplete = _ref.onComplete, inputOnCancel = _ref.onCancel, inputOnShippingChange = _ref.onShippingChange, inputOnShippingAddressChange = _ref.onShippingAddressChange, inputOnShippingOptionsChange = _ref.onShippingOptionsChange;
+        var paymentSource = _ref.paymentSource, partnerAttributionID = _ref.partnerAttributionID, merchantID = _ref.merchantID, clientID = _ref.clientID, facilitatorAccessToken = _ref.facilitatorAccessToken, currency = _ref.currency, intent = _ref.intent, enableOrdersApprovalSmartWallet = _ref.enableOrdersApprovalSmartWallet, smartWalletOrderID = _ref.smartWalletOrderID, branded = _ref.branded, clientAccessToken = _ref.clientAccessToken, _ref$vault = _ref.vault, vault = void 0 !== _ref$vault && _ref$vault, _ref$experiments = _ref.experiments, experiments = void 0 === _ref$experiments ? {} : _ref$experiments, featureFlags = _ref.featureFlags, inputCreateSubscription = _ref.createSubscription, inputCreateOrder = _ref.createOrder, onError = _ref.onError, inputOnApprove = _ref.onApprove, inputOnComplete = _ref.onComplete, inputOnCancel = _ref.onCancel, inputOnShippingChange = _ref.onShippingChange, inputOnShippingAddressChange = _ref.onShippingAddressChange, inputOnShippingOptionsChange = _ref.onShippingOptionsChange;
         var createBillingAgreement = function(_ref2) {
             var createBillingAgreement = _ref2.createBillingAgreement, paymentSource = _ref2.paymentSource;
             if (createBillingAgreement) return function() {
@@ -8666,7 +8681,7 @@ window.smartCard = function(modules) {
             createOrder: createOrder
         });
         var onShippingChange = function(_ref2, _ref3) {
-            var onShippingChange = _ref2.onShippingChange, partnerAttributionID = _ref2.partnerAttributionID, featureFlags = _ref2.featureFlags;
+            var onShippingChange = _ref2.onShippingChange, partnerAttributionID = _ref2.partnerAttributionID, featureFlags = _ref2.featureFlags, experiments = _ref2.experiments, clientID = _ref2.clientID;
             var facilitatorAccessToken = _ref3.facilitatorAccessToken, createOrder = _ref3.createOrder;
             if (onShippingChange) return function(_ref4, actions) {
                 var buyerAccessToken = _ref4.buyerAccessToken, _ref4$forceRestAPI = _ref4.forceRestAPI, forceRestAPI = void 0 === _ref4$forceRestAPI ? featureFlags.isLsatUpgradable : _ref4$forceRestAPI, data = _objectWithoutPropertiesLoose(_ref4, _excluded);
@@ -8677,7 +8692,8 @@ window.smartCard = function(modules) {
                     _getLogger$info$track.token = orderID, _getLogger$info$track.context_id = orderID, 
                     _getLogger$info$track.shipping_callback_invoked = "1", _getLogger$info$track)).flush();
                     return onShippingChange(data, function(_ref) {
-                        var orderID = _ref.orderID, facilitatorAccessToken = _ref.facilitatorAccessToken, buyerAccessToken = _ref.buyerAccessToken, partnerAttributionID = _ref.partnerAttributionID, forceRestAPI = _ref.forceRestAPI;
+                        var orderID = _ref.orderID, facilitatorAccessToken = _ref.facilitatorAccessToken, buyerAccessToken = _ref.buyerAccessToken, partnerAttributionID = _ref.partnerAttributionID, forceRestAPI = _ref.forceRestAPI, clientID = _ref.clientID;
+                        var useShippingChangeCallbackMutation = _ref.experiments.useShippingChangeCallbackMutation;
                         return {
                             resolve: function() {
                                 return promise_ZalgoPromise.resolve();
@@ -8688,7 +8704,13 @@ window.smartCard = function(modules) {
                             order: {
                                 patch: function(data) {
                                     void 0 === data && (data = {});
-                                    return patchOrder(orderID, data, {
+                                    return useShippingChangeCallbackMutation ? patchShipping({
+                                        clientID: clientID,
+                                        data: data,
+                                        orderID: orderID
+                                    }).catch((function() {
+                                        throw new Error("Order could not be patched");
+                                    })) : patchOrder(orderID, data, {
                                         facilitatorAccessToken: facilitatorAccessToken,
                                         buyerAccessToken: buyerAccessToken,
                                         partnerAttributionID: partnerAttributionID,
@@ -8705,14 +8727,18 @@ window.smartCard = function(modules) {
                         buyerAccessToken: buyerAccessToken,
                         actions: actions,
                         partnerAttributionID: partnerAttributionID,
-                        forceRestAPI: forceRestAPI
+                        forceRestAPI: forceRestAPI,
+                        clientID: clientID,
+                        experiments: experiments
                     }));
                 }));
             };
         }({
             onShippingChange: inputOnShippingChange,
             partnerAttributionID: partnerAttributionID,
-            featureFlags: featureFlags
+            experiments: experiments,
+            featureFlags: featureFlags,
+            clientID: clientID
         }, {
             facilitatorAccessToken: facilitatorAccessToken,
             createOrder: createOrder
@@ -9118,7 +9144,10 @@ window.smartCard = function(modules) {
             fundingEligibility: fundingEligibility,
             inputEvents: inputEvents,
             export: parent ? parent.export : xport,
-            facilitatorAccessToken: facilitatorAccessToken
+            facilitatorAccessToken: facilitatorAccessToken,
+            sdkCorrelationID: sdkCorrelationID,
+            partnerAttributionID: partnerAttributionID,
+            hcfSessionID: hcfSessionID
         };
         var baseProps = function(_ref) {
             var branded = _ref.branded, enableOrdersApprovalSmartWallet = _ref.enableOrdersApprovalSmartWallet, smartWalletOrderID = _ref.smartWalletOrderID;
@@ -9255,7 +9284,7 @@ window.smartCard = function(modules) {
                     createVaultSetupToken: xprops.createVaultSetupToken
                 }, createVaultSetupToken = _ref.createVaultSetupToken, function() {
                     return createVaultSetupToken({}).then((function(vaultSetupToken) {
-                        if (!vaultSetupToken || "string" != typeof vaultSetupToken) throw new Error("Expected a vault setup token to be passed to createVaultSetupToken");
+                        if (!vaultSetupToken || "string" != typeof vaultSetupToken) throw new Error("Expected a vault setup token to be returned from createVaultSetupToken");
                         return vaultSetupToken;
                     }));
                 }),
@@ -9263,14 +9292,15 @@ window.smartCard = function(modules) {
                     onApprove: xprops.onApprove,
                     onError: baseProps.onError
                 }, onApprove = _ref20.onApprove, onError = _ref20.onError, function(data) {
-                    try {
-                        var _onApprove;
-                        return null == (_onApprove = onApprove(data)) ? void 0 : _onApprove.catch((function(error) {
-                            return onError(error);
+                    return promise_ZalgoPromise.try((function() {
+                        return onApprove(data);
+                    })).catch((function(err) {
+                        return promise_ZalgoPromise.try((function() {
+                            onError(err);
+                        })).finally((function() {
+                            throw err;
                         }));
-                    } catch (error) {
-                        return onError(error);
-                    }
+                    }));
                 })
             };
             var _ref20, onApprove, onError;
@@ -9318,59 +9348,55 @@ window.smartCard = function(modules) {
         });
         throw new Error("Must pass either createVaultSetupToken or createOrder");
     }
-    var vault_without_purchase_onVaultWithoutPurchaseError = function(_ref) {
-        var vaultToken = _ref.vaultToken, onError = _ref.onError;
-        return function(error) {
-            !function(_ref7) {
-                var _payload;
-                var vaultToken = _ref7.vaultToken, error = _ref7.error;
-                var payload = ((_payload = {}).ext_error_code = "hcf_vault_without_purchase_error", 
-                _payload.ext_error_desc = stringifyErrorMessage(error), _payload.vault_token = vaultToken, 
-                _payload);
-                getLogger().track(payload);
+    var vault_without_purchase_savePaymentSource = function(_ref) {
+        var onApprove = _ref.onApprove, onError = _ref.onError, clientID = _ref.clientID, paymentSource = _ref.paymentSource, idToken = _ref.idToken;
+        var vaultToken;
+        return (0, _ref.createVaultSetupToken)().then((function(vaultSetupToken) {
+            vaultToken = vaultSetupToken;
+            return callGraphQL({
+                name: "UpdateVaultSetupToken",
+                query: "\n      mutation UpdateVaultSetupToken(\n        $clientID: String!\n        $vaultSetupToken: String!\n        $paymentSource: PaymentSource\n        $idToken: String!\n      ) {\n        updateVaultSetupToken(\n          clientId: $clientID\n          vaultSetupToken: $vaultSetupToken\n          paymentSource: $paymentSource\n          idToken: $idToken\n        ) {\n          id,\n          status\n        }\n      }",
+                variables: {
+                    clientID: (_ref2 = {
+                        vaultSetupToken: vaultSetupToken,
+                        clientID: clientID,
+                        paymentSource: paymentSource,
+                        idToken: idToken
+                    }).clientID,
+                    vaultSetupToken: _ref2.vaultSetupToken,
+                    paymentSource: _ref2.paymentSource,
+                    idToken: _ref2.idToken
+                }
+            });
+            var _ref2;
+        })).then((function() {
+            return onApprove({
+                vaultSetupToken: vaultToken
+            });
+        })).then((function() {
+            return function(_ref6) {
+                var _getLogger$track3;
+                var vaultToken = _ref6.vaultToken;
+                getLogger().track((_getLogger$track3 = {}, _getLogger$track3.transition_name = "hcf_vault_without_purchase_success", 
+                _getLogger$track3.event_name = "hcf_vault_without_purchase_success", _getLogger$track3.vault_token = vaultToken, 
+                _getLogger$track3)).flush();
             }({
-                vaultToken: vaultToken,
-                error: error
+                vaultToken: vaultToken
+            });
+        })).catch((function(error) {
+            "string" == typeof error && (error = new Error(error));
+            !function(_ref7) {
+                var _getLogger$track4;
+                var vaultToken = _ref7.vaultToken, error = _ref7.error;
+                getLogger().track((_getLogger$track4 = {}, _getLogger$track4.ext_error_code = "hcf_vault_without_purchase_error", 
+                _getLogger$track4.ext_error_desc = stringifyErrorMessage(error), _getLogger$track4.vault_token = vaultToken, 
+                _getLogger$track4)).flush();
+            }({
+                error: error,
+                vaultToken: vaultToken
             });
             onError(error);
-        };
-    };
-    var vault_without_purchase_savePaymentSource = function(_ref2) {
-        var onApprove = _ref2.onApprove, onError = _ref2.onError, clientID = _ref2.clientID, paymentSource = _ref2.paymentSource, idToken = _ref2.idToken;
-        return (0, _ref2.createVaultSetupToken)().then((function(vaultSetupToken) {
-            return function(_ref2) {
-                return callGraphQL({
-                    name: "UpdateVaultSetupToken",
-                    query: "\n      mutation UpdateVaultSetupToken(\n        $clientID: String!\n        $vaultSetupToken: String!\n        $paymentSource: PaymentSource\n        $idToken: String!\n      ) {\n        updateVaultSetupToken(\n          clientId: $clientID\n          vaultSetupToken: $vaultSetupToken\n          paymentSource: $paymentSource\n          idToken: $idToken\n        ) {\n          id,\n          status\n        }\n      }",
-                    variables: {
-                        clientID: _ref2.clientID,
-                        vaultSetupToken: _ref2.vaultSetupToken,
-                        paymentSource: _ref2.paymentSource,
-                        idToken: _ref2.idToken
-                    }
-                });
-            }({
-                vaultSetupToken: vaultSetupToken,
-                clientID: clientID,
-                paymentSource: paymentSource,
-                idToken: idToken
-            }).then((function() {
-                return onApprove({
-                    vaultSetupToken: vaultSetupToken
-                });
-            })).then((function() {
-                return vaultToken = {
-                    vaultToken: vaultSetupToken
-                }.vaultToken, void getLogger().track(((_getLogger$track3 = {}).transition_name = "hcf_vault_without_purchase_success", 
-                _getLogger$track3.event_name = "hcf_vault_without_purchase_success", _getLogger$track3.vault_token = vaultToken, 
-                _getLogger$track3));
-                var _getLogger$track3, vaultToken;
-            })).catch(vault_without_purchase_onVaultWithoutPurchaseError({
-                onError: onError,
-                vaultToken: vaultSetupToken
-            }));
-        })).catch(vault_without_purchase_onVaultWithoutPurchaseError({
-            onError: onError
+            throw error;
         }));
     };
     function submitCardFields(_ref) {
@@ -9382,15 +9408,16 @@ window.smartCard = function(modules) {
         gql_resetGQLErrors();
         return promise_ZalgoPromise.try((function() {
             if (!hasCardFields()) throw new Error("Card fields not available to submit");
-            var card = getCardFields();
-            return cardProps.createVaultSetupToken ? vault_without_purchase_savePaymentSource({
+            var isVaultFlow = Boolean(cardProps.createVaultSetupToken);
+            var card = getCardFields(isVaultFlow);
+            return isVaultFlow ? vault_without_purchase_savePaymentSource({
                 onApprove: cardProps.onApprove,
                 createVaultSetupToken: cardProps.createVaultSetupToken,
                 onError: cardProps.onError,
                 clientID: cardProps.clientID,
                 paymentSource: convertCardToPaymentSource(card, extraFields),
                 idToken: cardProps.userIDToken || ""
-            }) : cardProps.createOrder().then((function(id) {
+            }) : cardProps.createOrder ? cardProps.createOrder().then((function(id) {
                 if ("string" != typeof (null == id ? void 0 : id.valueOf())) throw new TypeError("Expected createOrder to return a promise that resolves with the order ID as a string.");
                 var payment_source = convertCardToPaymentSource(card, extraFields);
                 var data = {
@@ -9454,7 +9481,7 @@ window.smartCard = function(modules) {
                 });
                 cardProps.onError && cardProps.onError(error);
                 throw error;
-            }));
+            })) : void 0;
             var orderID;
         }));
     }
@@ -9677,16 +9704,7 @@ window.smartCard = function(modules) {
             });
         }), [ inputState ]);
         hooks_module_p((function() {
-            "function" == typeof onEligibilityChange && onEligibilityChange(function(value, cardType) {
-                var fundingEligibility = window.xprops.fundingEligibility;
-                var type = VALIDATOR_TO_TYPE_MAP[cardType.type];
-                if (0 === value.length) return !0;
-                if (fundingEligibility && fundingEligibility.card && fundingEligibility.card.eligible && type && fundingEligibility.card.vendors) {
-                    var vendor = fundingEligibility.card.vendors[type];
-                    if (vendor && vendor.eligible && !vendor.branded) return !0;
-                }
-                return !1;
-            }(inputValue, cardType));
+            "function" == typeof onEligibilityChange && onEligibilityChange(checkCardEligibility(inputValue, cardType));
             if (cardType && cardType.lengths) {
                 var cardMaxLength = cardType.lengths.reduce((function(previousValue, currentValue) {
                     return Math.max(previousValue, currentValue);
@@ -10184,14 +10202,7 @@ window.smartCard = function(modules) {
                 isExpiryValid: expiryValidity.isValid,
                 gqlErrorsObject: gqlErrorsObject
             });
-            if (isCardEligible) markValidity(numberRef, numberValidity, hasFocus, touched); else {
-                var _numberRef$current;
-                var element = null == numberRef || null == (_numberRef$current = numberRef.current) ? void 0 : _numberRef$current.base;
-                if (element) {
-                    element.classList.add("invalid");
-                    element.classList.remove("valid");
-                }
-            }
+            markValidity(numberRef, numberValidity, hasFocus, touched);
             markValidity(expiryRef, expiryValidity, hasFocus, touched);
             markValidity(cvvRef, cvvValidity, hasFocus, touched);
             onChange({
@@ -10312,14 +10323,7 @@ window.smartCard = function(modules) {
             });
         }), [ gqlErrors ]);
         hooks_module_p((function() {
-            if (isCardEligible) markValidity(numberRef, numberValidity, hasFocus, touched); else {
-                var _numberRef$current2;
-                var element = null == numberRef || null == (_numberRef$current2 = numberRef.current) ? void 0 : _numberRef$current2.base;
-                if (element) {
-                    element.classList.add("invalid");
-                    element.classList.remove("valid");
-                }
-            }
+            markValidity(numberRef, numberValidity, hasFocus, touched);
             onChange({
                 value: number,
                 valid: numberValidity.isValid,
@@ -10986,7 +10990,7 @@ window.smartCard = function(modules) {
             logger.addTrackingBuilder((function() {
                 var _ref2;
                 return (_ref2 = {}).context_type = "hcf_session_id", _ref2.context_id = hcfSessionID, 
-                _ref2.button_version = "5.0.132", _ref2.hcf_session_id = hcfSessionID, _ref2.hcf_correlation_id = cardCorrelationID, 
+                _ref2.button_version = "5.0.133", _ref2.hcf_session_id = hcfSessionID, _ref2.hcf_correlation_id = cardCorrelationID, 
                 _ref2.bn_code = partnerAttributionID, _ref2.merchant_domain = merchantDomain, _ref2.t = Date.now().toString(), 
                 _ref2.sdk_correlation_id = sdkCorrelationID, _ref2.checkout = clientID, _ref2.seller_id = null == merchantID ? void 0 : merchantID[0], 
                 _ref2;

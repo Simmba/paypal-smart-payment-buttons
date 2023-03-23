@@ -54,12 +54,13 @@ describe("savePaymentSource", () => {
       .fn()
       .mockRejectedValue(createVaultSetupTokenError);
 
-    await savePaymentSource({
-      ...defaultOptions,
-      ...defaultSave({ createVaultSetupToken: rejectCreateVaultSetupToken }),
-    });
-
-    expect.assertions(3);
+    expect.assertions(4);
+    await expect(
+      savePaymentSource({
+        ...defaultOptions,
+        ...defaultSave({ createVaultSetupToken: rejectCreateVaultSetupToken }),
+      })
+    ).rejects.toThrow(createVaultSetupTokenError);
     expect(vaultWithoutPurchaseSuccess).not.toHaveBeenCalled();
     expect(vaultWithoutPurchaseFailure).toHaveBeenCalledWith({
       error: createVaultSetupTokenError,
@@ -75,9 +76,10 @@ describe("savePaymentSource", () => {
     // $FlowIssue
     updateVaultSetupToken.mockRejectedValue(updateVaultSetupTokenError);
 
-    await savePaymentSource(defaultOptions);
-
-    expect.assertions(3);
+    expect.assertions(4);
+    await expect(savePaymentSource(defaultOptions)).rejects.toBe(
+      updateVaultSetupTokenError
+    );
     expect(vaultWithoutPurchaseSuccess).not.toHaveBeenCalled();
     expect(vaultWithoutPurchaseFailure).toHaveBeenCalledWith({
       error: updateVaultSetupTokenError,
@@ -90,12 +92,13 @@ describe("savePaymentSource", () => {
     const onApproveError = new Error("error with on approve");
     const rejectOnApprove = vi.fn().mockRejectedValue(onApproveError);
 
-    await savePaymentSource({
-      ...defaultOptions,
-      ...defaultSave({ onApprove: rejectOnApprove }),
-    });
-
-    expect.assertions(3);
+    expect.assertions(4);
+    await expect(
+      savePaymentSource({
+        ...defaultOptions,
+        ...defaultSave({ onApprove: rejectOnApprove }),
+      })
+    ).rejects.toThrow(onApproveError);
     expect(vaultWithoutPurchaseSuccess).not.toHaveBeenCalled();
     expect(vaultWithoutPurchaseFailure).toHaveBeenCalledWith({
       error: onApproveError,

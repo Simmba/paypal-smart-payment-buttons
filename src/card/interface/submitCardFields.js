@@ -38,12 +38,15 @@ export function submitCardFields({
     if (!hasCardFields()) {
       throw new Error(`Card fields not available to submit`);
     }
+    // $FlowIssue
+    const isVaultFlow = Boolean(cardProps.createVaultSetupToken);
+    const card = getCardFields(isVaultFlow);
 
-    const card = getCardFields();
-
-    if (cardProps.createVaultSetupToken) {
+    if (isVaultFlow) {
       return savePaymentSource({
+        // $FlowFixMe
         onApprove: cardProps.onApprove,
+        // $FlowFixMe
         createVaultSetupToken: cardProps.createVaultSetupToken,
         onError: cardProps.onError,
         clientID: cardProps.clientID,
@@ -53,8 +56,9 @@ export function submitCardFields({
     }
     let orderID;
 
+    if (cardProps.createOrder) {
       // $FlowFixMe
-    return cardProps
+      return cardProps
       .createOrder()
       .then((id) => {
         if (typeof id?.valueOf() !== "string") {
@@ -92,5 +96,6 @@ export function submitCardFields({
 
         throw error;
       });
+    }
   });
 }
