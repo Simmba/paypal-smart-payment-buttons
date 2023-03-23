@@ -99,4 +99,18 @@ describe("Test service worker url generation", () => {
 
     expect(sanitizedUrl).toMatch(expectedUrl);
   });
+  it("Should remove any encoded html in url to prevent xss attacks", () => {
+    const invalidReleaseHash =
+      "b6cc430fb82802fb9363767b8a7c38187fa4a9d7;<alert>1</alert>";
+    const dumbledoreServiceWorker =
+      "service-worker.d13e6de5a39aafd6b06bd1d18d165c8d.js";
+    const sanitizedUrl = getSanitizedUrl(
+      invalidReleaseHash,
+      dumbledoreServiceWorker
+    );
+    const expectedUrl =
+      "https://www.paypal.com/checkout-sw/service-worker.d13e6de5a39aafd6b06bd1d18d165c8d.js?releaseHash=b6cc430fb82802fb9363767b8a7c38187fa4a9d7";
+
+    expect(sanitizedUrl).toMatch(expectedUrl);
+  });
 });
